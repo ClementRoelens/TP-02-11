@@ -45,12 +45,19 @@ function RecipeDetail() {
             <div className="col-4">
                 <h3>Ingrédients : </h3>
                 <ul>
-                {recipe.ingredients.map((ingredient:{ingredient : Ingredient, quanti}) => 
+                {recipe.ingredients.map((ingredientTotal:{ingredient : Ingredient, quantity : number}) => 
+                    <li key={ingredientTotal.ingredient.id}>{ingredientTotal.ingredient.name} ({ingredientTotal.quantity}g)</li>
                 )}
-
                 </ul>
             </div>
-            <div className="col-8"></div>
+            <div className="col-8">
+                <h3>Étapes :</h3>
+                <ul>
+                    {recipe.steps.map((step:string) => 
+                    <li>{step}</li>
+                    )}
+                </ul>
+            </div>
         </div>
         </>
         }

@@ -1,9 +1,12 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Form from "./Form";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Ingredient } from "../models/Ingredient";
+import { useAppDispatch } from "../config/hooks";
 
 function RecipeForm() {
+    const dispatch = useAppDispatch();
+
     const [emptyInput, setEmptyInput] = useState(false);
     const [requestFailed, setRequestFailed] = useState(false);
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -15,8 +18,15 @@ function RecipeForm() {
 
     const [searchparams] = useSearchParams();
     const mode = searchparams.get("mode");
+    const {id} = useParams();
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (id){
+            
+        }
+    },[id])
+    
     function recipeSubmitHandler() {
     }
 
@@ -25,7 +35,7 @@ function RecipeForm() {
             <Form submitFunction={recipeSubmitHandler}>
                 <div>
                     <label htmlFor="name" className="form-label">Nom :</label>
-                    <input type="text" className="form-control" id="name" />
+                    <input type="text" className="form-control" id="name" required defaultValue={mode === "edit" ? } />
                 </div>
                 <div className="d-flex justify-content-around">
                     <div>
