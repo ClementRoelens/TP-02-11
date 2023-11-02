@@ -1,18 +1,15 @@
 {
-    "ingredients": [
-        
-            {
-                "id": "127000",
-                "name": "pate feuilletee"
-            },
-            {
-                "id": "127001",
-                "name": "poireaux"
-            },
-            {
-                "id": "127002",
-                "name": "beurre"
-            }
-        
-    ]
+  "ingredients": [
+    {
+      "name": "pate feuilletee deluxe"
+    },
+    {
+      "id": "127001",
+      "name": "poireaux"
+    },
+    {
+      "id": "127002",
+      "name": "beurre"
+    }
+  ]
 }

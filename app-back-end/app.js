@@ -5,8 +5,8 @@ const port = 3000
 
 app.use(express.json())
 
-const recipeData = JSON.parse(fs.readFileSync('recipe.json'))
-const ingredientData = JSON.parse(fs.readFileSync('ingredient.json'))
+let recipeData = JSON.parse(fs.readFileSync('recipe.json'))
+let ingredientData = JSON.parse(fs.readFileSync('ingredient.json'))
 
 app.get('/recipes', (req, res) =>{
     res.json(recipeData);
@@ -30,7 +30,14 @@ app.post('/recipes', (req,res) => {
     res.status(201).json(newRecipe)
 })
 
-
+app.put('/recipe/:id', (req,res) => {
+    const newRecipeValue = req.body
+    recipeData.recipes = recipeData.recipes.map(recipe =>recipe.id === req.params.id ? newRecipeValue : recipe)
+    console.log(recipeData)
+    
+    fs.writeFileSync('recipe.json', JSON.stringify(recipeData, null,2))
+    res.status(200).json(newRecipeValue)
+})
 
 
 
@@ -59,7 +66,14 @@ app.post('/ingredients', (req,res) =>{
     res.status(201).json(newIngredient)
 })
 
-app.put({})
+app.put('/ingredient/:id', (req,res) => {
+    const newIngredientValue = req.body
+    ingredientData.ingredients = ingredientData.ingredients.map(ingredient =>ingredient.id === req.params.id ? newIngredientValue : ingredient)
+    console.log(ingredientData)
+    
+    fs.writeFileSync('ingredient.json', JSON.stringify(ingredientData, null,2))
+    res.status(200).json(newIngredientValue)
+})
 
 app.delete({})
 
