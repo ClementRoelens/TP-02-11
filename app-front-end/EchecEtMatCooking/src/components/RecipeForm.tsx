@@ -2,18 +2,18 @@ import { useNavigate, useParams } from "react-router-dom";
 import Form from "./Form";
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { Ingredient } from "../models/Ingredient";
-import { useAppDispatch } from "../config/hooks";
+import { useAppDispatch, useAppSelector } from "../config/hooks";
 import { createRecipe, getOneRecipe, updateRecipe } from "./recipeSlice";
 import { Alert } from "antd";
 import { Recipe } from "../models/Recipe";
 
 function RecipeForm() {
     const dispatch = useAppDispatch();
+    const recipe = useAppSelector(state => state.recipes.selectedRecipe);
 
     const [emptyInput, setEmptyInput] = useState(false);
     const [isFetchFailed, setIsFetchFailed] = useState(false);
     const [isRequestFailed, setIsRequestFailed] = useState(false);
-    const [recipe, setRecipe] = useState<Recipe | null>(null);
 
     const [ingredients, setIngredients] = useState<{ ingredient: Ingredient, quantity: number }[]>([
         {
@@ -35,6 +35,7 @@ function RecipeForm() {
     async function fetchRecipe() {
         const response: any = await dispatch(getOneRecipe(id!));
         if (response.error) {
+            setIsFetchFailed(true);
             setTimeout(() => {
                 navigate("/");
             }, 2500);
@@ -105,38 +106,43 @@ function RecipeForm() {
 
     function writeIngredientName(e: ChangeEvent<HTMLInputElement>, index: number) {
         setIngredients(prevIngredients => {
-            prevIngredients[index].ingredient.name = e.target.value;
-            return prevIngredients;
+            const ingredientsCopy = [...prevIngredients];
+            ingredientsCopy[index].ingredient.name = e.target.value;
+            return ingredientsCopy;
         });
     }
 
     function writeIngredientQuantity(e: ChangeEvent<HTMLInputElement>, index: number) {
         setIngredients(prevIngredients => {
-            prevIngredients[index].quantity = +e.target.value;
-            return prevIngredients;
+            const ingredientsCopy = [...prevIngredients];
+            ingredientsCopy[index].quantity = +e.target.value;
+            return ingredientsCopy;
         })
     }
 
     function writeStep(e: ChangeEvent<HTMLInputElement>, index: number) {
         setSteps(prevSteps => {
-            prevSteps[index] = e.target.value;
-            return prevSteps;
+            const stepsCopy = [...prevSteps];
+            stepsCopy[index] = e.target.value;
+            return stepsCopy;
         })
     }
 
     function removeIngredient(e:FormEvent,index: number) {
         e.preventDefault();
         setIngredients(prevIngredients => {
-            prevIngredients.splice(index, 1);
-            return [...prevIngredients];
+            const ingredientsCopy = [...prevIngredients];
+            ingredientsCopy.splice(index, 1);
+            return ingredientsCopy;
         })
     }
 
     function removeStep(e:FormEvent,index: number) {
         e.preventDefault();
         setSteps(prevSteps => {
-            prevSteps.splice(index, 1);
-            return [...prevSteps];
+            const stepsCopy = [...prevSteps];
+            stepsCopy.splice(index, 1);
+            return stepsCopy;
         })
     }
 

@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { Recipe } from "../models/Recipe";
 import axios from "axios";
 import { RootState } from "../config/store";
 
-const DB_URL = "";
+const DB_URL = "http://localhost:3000/recipes";
 
 export const getAllRecipes = createAsyncThunk(
     "recipes/getAll",
@@ -24,14 +25,14 @@ export const getOneRecipe = createAsyncThunk(
 export const createRecipe = createAsyncThunk(
     "recipes/create",
     async (newRecipe: Recipe) => {
-        const response = await axios.post<Recipe>(DB_URL);
+        const response = await axios.post<Recipe>(DB_URL, newRecipe);
         return response.data;
     }
 );
 export const updateRecipe = createAsyncThunk(
     "recipes/update",
     async (updatedRecipe: Recipe) => {
-        const response = await axios.put<Recipe>(`${DB_URL}/${updatedRecipe.id}`);
+        const response = await axios.put<Recipe>(`${DB_URL}/${updatedRecipe.id}`, updatedRecipe);
         return response.data;
     }
 );

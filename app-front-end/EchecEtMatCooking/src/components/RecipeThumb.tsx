@@ -2,12 +2,12 @@ import { Recipe } from "../models/Recipe";
 
 function RecipeThumb(props:RecipeThumbInterface) {
     return (
-        <button className="btn btn-outline-light">
+        <button className="btn btn-outline-light p-4">
             <h2>{props.recipe.name}</h2>
             <hr />
-            <div className="d-flex justify-content-space-around">
-                <div>Temps de préparation : {props.recipe.prepTime}</div>
-                <div>Temps de cuisson : {props.recipe.cookTime}</div>
+            <div className="d-flex justify-content-space-around px-4">
+                <div className="me-5">Préparation : {props.recipe.prepTime}m</div>
+                <div>Cuisson : {props.recipe.cookTime}m</div>
             </div>
         </button>
     );
