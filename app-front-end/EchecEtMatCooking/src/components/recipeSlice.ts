@@ -36,7 +36,7 @@ export const updateRecipe = createAsyncThunk(
     }
 );
 
-export const removeRecipes = createAsyncThunk(
+export const removeRecipe = createAsyncThunk(
     "recipes/delete",
     async (id: string) => {
         const response = await axios.delete<Recipe[]>(`${DB_URL}/${id}`);
@@ -85,11 +85,11 @@ const recipeSlice = createSlice({
             builder.addCase(updateRecipe.rejected, (state, action) => {
                 console.error(action.error);
             }),
-            builder.addCase(removeRecipes.fulfilled, (state, action: PayloadAction<Recipe[]>) => {
+            builder.addCase(removeRecipe.fulfilled, (state, action: PayloadAction<Recipe[]>) => {
                 state.recipes = action.payload;
                 state.selectedRecipe = null;
             }),
-            builder.addCase(removeRecipes.rejected, (state, action) => {
+            builder.addCase(removeRecipe.rejected, (state, action) => {
                 console.error(action.error);
             })
     },

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../config/hooks";
 import { useNavigate, useParams } from "react-router-dom";
-import { getOneRecipe } from "./recipeSlice";
+import { getOneRecipe, removeRecipe } from "./recipeSlice";
 import { Alert } from "antd";
 import { Ingredient } from "../models/Ingredient";
 
@@ -22,6 +22,10 @@ function RecipeDetail() {
                 navigate("/");
             },2500);
         }
+    }
+
+    async function triggerRemove(){
+        await dispatch(removeRecipe(id!));
     }
 
     useEffect(() => {
@@ -58,6 +62,11 @@ function RecipeDetail() {
                     )}
                 </ul>
             </div>
+        </div>
+        <hr />
+        <div className="buttons d-flex justify-content-around">
+            <button className="btn btn-warning" onClick={() => navigate("/edit/"+id)}><i className="bi bi-pencil-square"></i> Editer</button>
+            <button className="btn btn-danger" onClick={triggerRemove}><i className="bi bi-trash"></i> Supprimer</button>
         </div>
         </>
         }

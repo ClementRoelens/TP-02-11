@@ -8,8 +8,9 @@ import UserForm from "../components/UserForm";
 const router = createBrowserRouter([
     {path:"/" , element : <App/>, children : [
         {path:"/", element : <RecipeList/>},
-        {path:"/add", element : <RecipeForm/>},
         {path : "/:id", element : <RecipeDetail/>},
+        {path:"/add", element : <RecipeForm/>},
+        {path:"edit/:id", element:<RecipeForm/>},
         {path:"/signin", element : <UserForm/>},
         // {path:"/signup", element : <UserForm/>}
     ]}
