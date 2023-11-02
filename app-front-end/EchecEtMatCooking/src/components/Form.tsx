@@ -8,7 +8,7 @@ function Form(props:FormInterface) {
     }
 
     return (
-        <form action="" onSubmit={submitHandler}>
+        <form action="" onSubmit={submitHandler} className="p-3">
             {props.children}
             <button type="submit" className="btn btn-outline-light d-block mx-auto">Valider</button>
         </form>

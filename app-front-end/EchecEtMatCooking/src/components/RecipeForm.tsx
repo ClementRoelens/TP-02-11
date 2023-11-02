@@ -1,9 +1,9 @@
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Form from "./Form";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { Ingredient } from "../models/Ingredient";
 import { useAppDispatch } from "../config/hooks";
-import { getOneRecipe } from "./recipeSlice";
+import { createRecipe, getOneRecipe, updateRecipe } from "./recipeSlice";
 import { Alert } from "antd";
 import { Recipe } from "../models/Recipe";
 
@@ -17,10 +17,10 @@ function RecipeForm() {
 
     const [ingredients, setIngredients] = useState<{ ingredient: Ingredient, quantity: number }[]>([
         {
-            ingredient : {
-                name:"",
+            ingredient: {
+                name: "",
             },
-            quantity:0
+            quantity: 0
         }
     ]);
     const [steps, setSteps] = useState<string[]>([""]);
@@ -28,9 +28,6 @@ function RecipeForm() {
     const nameRef = useRef() as React.MutableRefObject<HTMLInputElement>;
     const prepTimeRef = useRef() as React.MutableRefObject<HTMLInputElement>;
     const cookTimeRef = useRef() as React.MutableRefObject<HTMLInputElement>;
-    // const ingredientNameRef = useRef() as React.MutableRefObject<HTMLInputElement>;
-    // const ingredientQuantityRef = useRef() as React.MutableRefObject<HTMLInputElement>;
-    // const stepRef = useRef() as React.MutableRefObject<HTMLInputElement>;
 
     const { id } = useParams();
     const navigate = useNavigate();
@@ -41,83 +38,155 @@ function RecipeForm() {
             setTimeout(() => {
                 navigate("/");
             }, 2500);
+        } else {
+            setIngredients(recipe!.ingredients);
+            setSteps(recipe!.steps);
         }
     }
 
     useEffect(() => {
         if (id) {
-
+            fetchRecipe();
         }
     }, [id])
 
-    function recipeSubmitHandler() {
+    async function recipeSubmitHandler() {
+        setEmptyInput(false);
+        if (nameRef.current.value !== "" && prepTimeRef.current.value !== "" && cookTimeRef.current.value !== ""){
+            // On va aussi vérifier que chaque ingrédient a un nom et une quantité différente de 0
+            ingredients.forEach((ingredientTotal:{ingredient:Ingredient, quantity:number}) => {
+                if (ingredientTotal.ingredient.name === "" || ingredientTotal.quantity === 0){
+                    setEmptyInput(true);
+                } 
+            });
+            // Pareil avec les steps
+            steps.forEach((step:string) => {
+                if (step === ""){
+                    setEmptyInput(true);
+                }
+            });
+            if (!emptyInput){
+                const newRecipe:Recipe = {
+                    name:nameRef.current.value,
+                    prepTime:+prepTimeRef.current.value,
+                    cookTime:+cookTimeRef.current.value,
+                    ingredients:ingredients,
+                    steps:steps
+                };
+                let result:any;
+                // Si un id est présent, on est en mode edit et donc on lance l'update
+                if (id){
+                    newRecipe.id = id;
+                    result = await dispatch(updateRecipe(newRecipe))
+                } 
+                // Sinon, on est en create
+                else {
+                    result = await dispatch(createRecipe(newRecipe));
+                }
+                if (result.error){
+                    setIsRequestFailed(true);
+                }
+            }
+        }
     }
 
-    function addIngredient(){
-        setIngredients(prevIngredients => [...prevIngredients,{
-            ingredient : {name:""},
-            quantity:0
+    function addIngredient(e: FormEvent) {
+        e.preventDefault();
+        setIngredients(prevIngredients => [...prevIngredients, {
+            ingredient: { name: "" },
+            quantity: 0
         }]);
     }
 
-    function writeIngredientName(e:FormEvent){
-        console.log(e);
+    function addStep(e: FormEvent) {
+        e.preventDefault();
+        setSteps(prevSteps => [...prevSteps, ""]);
     }
 
-    function writeIngredientQuantity(e:FormEvent){
-
+    function writeIngredientName(e: ChangeEvent<HTMLInputElement>, index: number) {
+        setIngredients(prevIngredients => {
+            prevIngredients[index].ingredient.name = e.target.value;
+            return prevIngredients;
+        });
     }
 
-    function writeStep(e:FormEvent){
+    function writeIngredientQuantity(e: ChangeEvent<HTMLInputElement>, index: number) {
+        setIngredients(prevIngredients => {
+            prevIngredients[index].quantity = +e.target.value;
+            return prevIngredients;
+        })
+    }
 
+    function writeStep(e: ChangeEvent<HTMLInputElement>, index: number) {
+        setSteps(prevSteps => {
+            prevSteps[index] = e.target.value;
+            return prevSteps;
+        })
+    }
+
+    function removeIngredient(e:FormEvent,index: number) {
+        e.preventDefault();
+        setIngredients(prevIngredients => {
+            prevIngredients.splice(index, 1);
+            return [...prevIngredients];
+        })
+    }
+
+    function removeStep(e:FormEvent,index: number) {
+        e.preventDefault();
+        setSteps(prevSteps => {
+            prevSteps.splice(index, 1);
+            return [...prevSteps];
+        })
     }
 
     return (
         <>
             {isFetchFailed && <Alert type="error" description="Aucune recette trouvée" message="Aucune recette n'a été trouvée à partir de cet id" />}
-            {isRequestFailed && <Alert type="error" description="Aucune recette trouvée" message="Aucune recette n'a été trouvée à partir de cet id" />}
+            {isRequestFailed && <Alert type="error" description="Il y a eu un problème avec le serveur" message="Il y a eu un problème avec le serveur" />}
+            {emptyInput && <Alert type="error" description="Un des champs est vide" message="Un des champs est vide"/>}
             <Form submitFunction={recipeSubmitHandler}>
                 <div>
                     <label htmlFor="name" className="form-label">Nom :</label>
-                    <input type="text" className="form-control" id="name" required defaultValue={recipe ? recipe.name : ""} />
+                    <input type="text" className="form-control" id="name" required defaultValue={recipe ? recipe.name : ""} ref={nameRef}/>
                 </div>
-                <div className="d-flex justify-content-around">
+                <div className="d-flex justify-content-around mt-3">
                     <div>
                         <label htmlFor="prepTime" className="form-label">Temps de préparation :</label>
-                        <input type="number" className="form-control" id="prepTime" required defaultValue={recipe ? recipe.prepTime : 0} />
+                        <input type="number" className="form-control" id="prepTime" required defaultValue={recipe ? recipe.prepTime : 0} ref={prepTimeRef}/>
                     </div>
                     <div>
                         <label htmlFor="cookTime" className="form-label">Temps de cuisson :</label>
-                        <input type="number" className="form-control" id="cookTime" required defaultValue={recipe ? recipe.cookTime : 0} />
+                        <input type="number" className="form-control" id="cookTime" required defaultValue={recipe ? recipe.cookTime : 0} ref={cookTimeRef} />
                     </div>
                 </div>
-                <div>
+                <div className="mt-3">
                     <label className="form-label">Ingrédients : </label>
-                    {ingredients.map((ingredientTotal: { ingredient: Ingredient, quantity: number }, index:number) =>
-                        <div className="input-group">
-                            <input type="text" className="form-control" placeholder="Nom" 
-                                required defaultValue={recipe ? ingredientTotal.ingredient.name : ""} 
-                                onInput={writeIngredientName}/>
-                            <span className="input-group-text">Quantité (en g)</span>
-                            <input type="number" className="form-control" placeholder="Quantité" 
-                                required defaultValue={recipe ? ingredientTotal.quantity : 0} 
-                                onInput={writeIngredientQuantity}/>
-                            <i className="bi bi-dash-circle text-danger"></i>
+                    {ingredients.map((ingredientTotal: { ingredient: Ingredient, quantity: number }, index: number) =>
+                        <div className="my-1 d-flex" key={index}>
+                            <div className="input-group my-1">
+                                <input type="text" className="form-control w-50" placeholder="Nom"
+                                    required defaultValue={recipe ? ingredientTotal.ingredient.name : ""}
+                                    onChange={e => writeIngredientName(e, index)} />
+                                <span className="input-group-text">Quantité (en g)</span>
+                                <input type="number" className="form-control rounded-end w-25" placeholder="Quantité"
+                                    required defaultValue={recipe ? ingredientTotal.quantity : 0}
+                                    onChange={e => writeIngredientQuantity(e, index)} />
+                            </div>
+                            <button className="btn" onClick={e => removeIngredient(e,index)}><i className="bi bi-dash-circle text-danger align-self-center ms-2"></i></button>
                         </div>
                     )}
-                    <button className="btn btn-outline-success" onClick={addIngredient}><i className="bi bi-plus-circle"></i> Ajouter</button>
+                    <button className="btn btn-outline-success d-block ms-auto me-5 mt-2" onClick={addIngredient}><i className="bi bi-plus-circle"></i> Ajouter</button>
                 </div>
-                <div>
+                <div className="mt-3">
                     <label htmlFor="" className="form-label">Étapes :</label>
-                    {steps.map((step: string , index:number) =>
-                        <>
-                            <div className="input-group">
-                                <input type="text" className="form-control" required defaultValue={recipe ? step : ""} onInput={writeStep}/>
-                                <i className="bi bi-dash-circle text-danger"></i>
-                            </div>
-                            <button className="btn btn-outline-success"><i className="bi bi-plus-circle"></i> Ajouter</button>
-                        </>
+                    {steps.map((step: string, index: number) =>
+                        <div className="my-1 d-flex" key={index}>
+                            <input type="text" className="form-control" required defaultValue={recipe ? step : ""} onChange={e => writeStep(e, index)} />
+                            <button className="btn" onClick={e => removeStep(e,index)}><i className="bi bi-dash-circle text-danger align-self-center ms-2"></i></button>
+                        </div>
                     )}
+                    <button className="btn btn-outline-success d-block ms-auto me-5 mt-2" onClick={addStep}><i className="bi bi-plus-circle"></i> Ajouter</button>
                 </div>
             </Form>
         </>

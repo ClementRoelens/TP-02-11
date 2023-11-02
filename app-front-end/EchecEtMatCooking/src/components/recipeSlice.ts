@@ -15,7 +15,7 @@ export const getAllRecipes = createAsyncThunk(
 
 export const getOneRecipe = createAsyncThunk(
     "recipes/getOne",
-    async (id:string) => {
+    async (id: string) => {
         const response = await axios.get<Recipe>(`${DB_URL}/${id}`);
         return response.data;
     }
@@ -23,22 +23,22 @@ export const getOneRecipe = createAsyncThunk(
 
 export const createRecipe = createAsyncThunk(
     "recipes/create",
-    async (newRecipe:Recipe) => {
+    async (newRecipe: Recipe) => {
         const response = await axios.post<Recipe>(DB_URL);
         return response.data;
     }
 );
 export const updateRecipe = createAsyncThunk(
     "recipes/update",
-    async (updatedRecipe:Recipe) => {
+    async (updatedRecipe: Recipe) => {
         const response = await axios.put<Recipe>(`${DB_URL}/${updatedRecipe.id}`);
         return response.data;
     }
 );
 
 export const removeRecipes = createAsyncThunk(
-    "recipes/getAll",
-    async (id:string) => {
+    "recipes/delete",
+    async (id: string) => {
         const response = await axios.delete<Recipe[]>(`${DB_URL}/${id}`);
         return response.data;
     }
@@ -46,55 +46,55 @@ export const removeRecipes = createAsyncThunk(
 
 
 const initialState = {
-    recipes:[],
-    selectedRecipe:null
+    recipes: [],
+    selectedRecipe: null
 } as {
-    recipes : Recipe[],
-    selectedRecipe : Recipe | null
+    recipes: Recipe[],
+    selectedRecipe: Recipe | null
 };
 
 const recipeSlice = createSlice({
-    name : "recipes",
-    initialState:initialState,
-    reducers : {},
-    extraReducers : (builder) => {
-        builder.addCase(getAllRecipes.fulfilled, (state,action:PayloadAction<Recipe[]>) => {
+    name: "recipes",
+    initialState: initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder.addCase(getAllRecipes.fulfilled, (state, action: PayloadAction<Recipe[]>) => {
             state.recipes = action.payload;
             state.selectedRecipe = null;
         }),
-        builder.addCase(getAllRecipes.rejected, (state,action) => {
-            console.error(action.error);
-        }),
-        builder.addCase(getOneRecipe.fulfilled, (state,action:PayloadAction<Recipe>) => {
-            state.selectedRecipe = action.payload;
-        }),
-        builder.addCase(getOneRecipe.rejected, (state,action) => {
-            console.error(action.error);
-        }),
-        builder.addCase(createRecipe.fulfilled, (state,action:PayloadAction<Recipe>) => {
-            state.recipes.push(action.payload);
-            state.selectedRecipe = null;
-        }),
-        builder.addCase(createRecipe.rejected, (state,action) => {
-            console.error(action.error);
-        }),
-        builder.addCase(updateRecipe.fulfilled, (state,action:PayloadAction<Recipe>) => {
-            state.recipes.map((recipe:Recipe) => recipe.id === action.payload.id ? action.payload : recipe);
-            state.selectedRecipe = action.payload;
-        }),
-        builder.addCase(updateRecipe.rejected, (state,action) => {
-            console.error(action.error);
-        }),
-        builder.addCase(removeRecipes.fulfilled, (state,action:PayloadAction<Recipe[]>) => {
-            state.recipes = action.payload;
-            state.selectedRecipe = null;
-        }),
-        builder.addCase(getAllRecipes.rejected, (state,action) => {
-            console.error(action.error);
-        })
+            builder.addCase(getAllRecipes.rejected, (state, action) => {
+                console.error(action.error);
+            }),
+            builder.addCase(getOneRecipe.fulfilled, (state, action: PayloadAction<Recipe>) => {
+                state.selectedRecipe = action.payload;
+            }),
+            builder.addCase(getOneRecipe.rejected, (state, action) => {
+                console.error(action.error);
+            }),
+            builder.addCase(createRecipe.fulfilled, (state, action: PayloadAction<Recipe>) => {
+                state.recipes.push(action.payload);
+                state.selectedRecipe = null;
+            }),
+            builder.addCase(createRecipe.rejected, (state, action) => {
+                console.error(action.error);
+            }),
+            builder.addCase(updateRecipe.fulfilled, (state, action: PayloadAction<Recipe>) => {
+                state.recipes.map((recipe: Recipe) => recipe.id === action.payload.id ? action.payload : recipe);
+                state.selectedRecipe = action.payload;
+            }),
+            builder.addCase(updateRecipe.rejected, (state, action) => {
+                console.error(action.error);
+            }),
+            builder.addCase(removeRecipes.fulfilled, (state, action: PayloadAction<Recipe[]>) => {
+                state.recipes = action.payload;
+                state.selectedRecipe = null;
+            }),
+            builder.addCase(removeRecipes.rejected, (state, action) => {
+                console.error(action.error);
+            })
     },
 });
 
 export default recipeSlice.reducer;
-export const recipeSelector = (state:RootState) => state.recipes;
+export const recipeSelector = (state: RootState) => state.recipes;
 
