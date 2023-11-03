@@ -1,0 +1,38 @@
+{
+  "recipes": [
+    {
+      "id": 1,
+      "title": "Tarte aux poireaux",
+      "ingredients": [
+        {
+          "ingredient": {
+            "id": "127000",
+            "name": "pate feuilletee"
+          },
+          "quantite": 2
+        },
+        {
+          "ingredient": {
+            "id": "127001",
+            "name": "poireaux"
+          },
+          "quantite": 3
+        },
+        {
+          "ingredient": {
+            "id": "127002",
+            "name": "beurre"
+          },
+          "quantite": 2
+        }
+      ],
+      "steps": [
+        "ceci est un test",
+        "pour prouver a tous",
+        "ma superiorité en terme de folie"
+      ],
+      "cookTime": 15,
+      "prepTime": 18
+    }
+  ]
+}
